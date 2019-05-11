@@ -1,0 +1,16 @@
+main() {
+	int a; 
+	a = 5; 
+	if (a > 3) {
+		a = a + 1;
+	}
+	for(i=0;i<20;i=i+1){
+		a=a+i;
+		while(i<a){
+		i=i+2;	
+		}	
+	}
+	while(i<a){
+		i=i+2;	
+	}
+}

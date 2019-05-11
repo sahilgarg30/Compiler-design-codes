@@ -1,0 +1,10 @@
+//one line comment
+/* dffdg
+ffd
+*/
+# include me
+
+int main(){
+	int x;
+}
+$

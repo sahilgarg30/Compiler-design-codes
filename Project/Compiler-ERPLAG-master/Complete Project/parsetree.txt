@@ -1,0 +1,247 @@
+SECTION .bss
+	lpBuffer: resb 18
+	Buf_Len: equ $-lpBuffer
+lft: RESW 8
+FOR_CTRL: RESW 8
+OUT: RESW 10
+temp: RESW 1
+rgt: RESW 1
+n1_cb: RESW 1
+index1_cb: RESW 1
+sum1_cb: RESD 1
+s4_cb: RESD 1
+t1_cb: RESB 1
+dump1_cb: RESW 1
+tempvar5_cb: RESD 1
+arr15_cb: RESD 15
+A4_cb: RESD 15
+i5_cb: RESW 1
+list1_cb: RESD 15
+k4_cb: RESW 1
+k5_cb: RESW 1
+SECTION .text
+global _start
+
+_start:
+MOV AX, 0
+MOV [sum1_cb], AX
+MOV word [index1_cb], 1
+MOV CX, 15
+MOV [FOR_CTRL+0], CX
+FOR0: MOV AX, [index1_cb]
+MOV [lft+0],AX
+MOV AX, [n1_cb]
+MOV [rgt], AX
+MOV AX,[lft+0]
+CMP AX,[rgt]
+JLE TRUE0
+MOV AX,0
+JMP CONT0
+TRUE0: MOV AX,1
+CONT0:MOV [t1_cb], AX
+MOV CX, [t1_cb]
+CMP CX, 1
+JNZ CASE02
+MOV SI, [index1_cb]
+MOV AX, [list1_cb+SI]
+call printInt
+MOV AX, [sum1_cb]
+MOV [lft+0],AX
+MOV BL, [index1_cb]
+SUB BL,1
+MOV AL, 2
+MUL BL
+MOV BX, AX
+MOV AX, [list1_cb+EBX]
+MOV [rgt], AX
+MOV AX,[lft+0]
+ADD AX,[rgt]
+MOV [sum1_cb], AX
+JMP END_SWITCH0
+CASE02: CMP CX, 0
+JNZ DEFAULT0
+MOV AX, [sum1_cb]
+call printInt
+MOV AX, [index1_cb]
+call printInt
+JMP END_SWITCH0
+DEFAULT0: 
+END_SWITCH0: INC word [index1_cb]
+MOV CX,[FOR_CTRL+0]
+CMP CX, [index1_cb]
+JGE FOR0
+MOV AX, [sum1_cb]
+call printInt
+call readInt
+MOV [k5_cb], AX
+MOV AX, [s4_cb]
+call printInt
+MOV AX, 1
+MOV [i5_cb], AX
+WHILE0: MOV AX, [i5_cb]
+MOV [lft+0],AX
+MOV AX, [k5_cb]
+MOV [rgt], AX
+MOV AX,[lft+0]
+CMP AX,[rgt]
+JLE TRUE1
+MOV AX,0
+JMP CONT1
+TRUE1: MOV AX,1
+CONT1:MOV CX, AX
+CMP CX, 1
+JNZ END_WHILE0
+call readInt
+MOV [tempvar5_cb], AX
+MOV AX, [tempvar5_cb]
+MOV [temp], AX
+MOV AL, 2
+MOV BL, [i5_cb]
+SUB BL,1
+MUL BL
+MOV BX, AX
+MOV AX, [temp]
+MOV [arr15_cb+EBX],AX
+MOV AX, [i5_cb]
+MOV [lft+0],AX
+MOV AX, 1
+MOV [rgt], AX
+MOV AX,[lft+0]
+ADD AX,[rgt]
+MOV [i5_cb], AX
+JMP WHILE0
+END_WHILE0: call exit
+
+printStr:
+    push    eax
+    push    ebx
+    mov     ebx, 1
+    mov     eax, 4
+    int     80H
+    pop     ebx
+    pop     eax
+    ret
+     
+readStr:
+    push    ebx
+    mov     ebx, 0
+    mov     eax, 3
+    int     80H
+    pop     ebx
+    ret
+
+printInt:
+    push eax
+    push ebx
+    push ecx
+    push edx
+    push esi
+    movsx eax,ax
+    mov esi, lpBuffer
+    add esi, Buf_Len
+    mov ecx,10
+    mov edx, eax 
+    cmp eax,0
+    jge .non_neg
+    mov eax,0
+    sub eax,edx
+    push '-'
+    mov ecx,esp
+    mov edx,1
+    call printStr
+    add esp, 4
+    mov ecx,10
+
+.non_neg:
+    mov edx,0
+    idiv ecx
+    add dl,0x30
+    mov [esi],dl
+    dec esi
+    cmp eax,0
+    jnz .non_neg
+
+    mov edx, lpBuffer
+    add edx, Buf_Len
+    mov ecx,esi
+    sub edx,ecx
+    inc ecx
+    call printStr
+    push 10
+    mov ecx,esp
+    mov edx,1
+    call printStr
+    add esp, 4
+    pop esi
+    pop edx
+    pop ecx
+    pop ebx
+    pop eax
+    ret
+
+readInt:
+    push ecx
+    push edx
+    push esi
+    mov     ecx, lpBuffer
+    mov     edx, Buf_Len
+    call    readStr
+    mov     esi,eax
+    mov     byte [lpBuffer+esi], 0
+    mov     eax, lpBuffer
+    call    atoi
+    pop     esi
+    pop     edx
+    pop     ecx
+    ret
+
+atoi:
+    push    ebx
+    push    ecx
+    push    edx
+    push    esi
+    mov     esi, eax        
+    mov     eax, 0          
+    mov     ecx, 0          
+    
+    mov     bl, [esi+ecx]   
+    cmp     bl,'-'          
+    jne     .multiplyLoop
+    inc     ecx
+
+.multiplyLoop:
+    mov     ebx, 10         
+    mul     ebx             
+    mov     bl, [esi+ecx]   
+    cmp     bl, 48          
+    jl      .finished       
+    cmp     bl, 57          
+    jg      .finished       
+ 
+    sub     bl, 48          
+    add     eax, ebx        
+    inc     ecx             
+    jmp     .multiplyLoop   
+
+.finished:
+    mov     ebx,10
+    div     ebx
+    mov     bl, [esi]
+    cmp     bl,'-'
+    jne     .fin2
+    mov     ebx,eax
+    mov     eax,0
+    sub     eax,ebx
+    
+.fin2:
+    pop     esi             
+    pop     edx
+    pop     ecx             
+    pop     ebx             
+    ret
+    
+exit: 
+    mov     eax,1
+    xor     ebx,ebx
+    int     80H
+

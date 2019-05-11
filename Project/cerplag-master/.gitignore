@@ -1,0 +1,23 @@
+# cache/gen
+*.pyc
+__pycache__/
+/readme.html
+*exe
+/*.out
+/out.*
+/compiler
+/tests/output_files/
+
+# Trash
+*~
+*.sw[po]
+*.db
+Desktop.ini
+.fuse_hidden*
+
+# Misc
+info/grammar.txt
+data/parse_table.txt
+todo.txt
+secret.*
+secret/
